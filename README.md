@@ -41,15 +41,25 @@ Ivanov — узнать телефон абонента по фамилии
 
 Пример: 
 ← Sidorov
+
 ← Ivanov
+
 ← Ivanov
+
 ← Petrov
+
 ← Next
+
 → Ivanov
+
 ← Next
+
 → Ivanov
+
 ← Next
+
 → Petrov
+
 
 Чек-лист для проверки задачи
 
