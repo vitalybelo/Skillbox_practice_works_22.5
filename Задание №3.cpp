@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <map>
-//#include "windows.h"
 using namespace std;
 
 bool anagramSearch (string &s1, string &s2);
@@ -17,8 +16,6 @@ bool anagramSearch (string &s1, string &s2);
  */
 
 int main() {
-//    SetConsoleCP(1251);
-//    SetConsoleOutputCP(1251);
     setlocale(LC_ALL, "RUS");
 
     string s1[] {"лекарство","стекловар"};
