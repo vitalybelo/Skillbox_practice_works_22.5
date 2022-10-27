@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 #include <map>
 #include "windows.h"
 using namespace std;
@@ -10,14 +9,11 @@ int main() {
     SetConsoleOutputCP(1251);
     setlocale(LC_ALL, "RUS");
 
-    string comm;
-    map<int, string> registryMap;
-
-    do {
-
+    string s1, s2;
+    map<string, int> registryMap;
+    map<string, int>::iterator iter;
 
 
-    } while (comm == "quit");
 
     return 0;
 }
