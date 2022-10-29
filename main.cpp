@@ -25,8 +25,8 @@ int main() {
 //    SetConsoleOutputCP(1251);
     setlocale(LC_ALL, "RUS");
 
-    map<string, Phones> namesMap;    // map < names is KEY, collection of numbers is parameter>
-    map<string, string> phoneMap;   // indexing for phones number
+    map<string, Phones> namesMap;   // map < names is KEY, collection of numbers is parameter>
+    map<string, string> phoneMap;   // indexing phone numbers map
     insertIntoMaps(namesMap, phoneMap, "Google Inc", "+1 800 800-0001");
     insertIntoMaps(namesMap, phoneMap, "Google Inc", "+1 800 800-0011");
     insertIntoMaps(namesMap, phoneMap, "Google Inc", "+1 800 800-0111");
