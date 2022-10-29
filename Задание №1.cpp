@@ -10,21 +10,23 @@ struct Phones {
 
 void displayHelp();
 string getCommand();
-void addRecord(map<string, Phones> &map);
-void deleteRecord(map<string, Phones> &map);
+void insertIntoMaps(map<string, Phones> &namesMap,
+                    map<string, string> &phoneMap,
+                    const string &name, const string &phone);
+void addRecord(map<string, Phones> &namesMap, map<string, string> &phoneMap);
+void deleteRecord(map<string, Phones> &namesMap, map<string, string> &phoneMap);
 void displayContact(map<string, Phones>::iterator it);
-void findByPhone(map<string, Phones> &map);
-void findByName(map<string, Phones> &map);
-
+void findByPhone(map<string, Phones> &namesMap, map<string, string> &phoneMap);
+void findByName(map<string, Phones> &namesMap);
 
 int main() {
     setlocale(LC_ALL, "RUS");
 
-    map<string, Phones> phoneMap; // map < names is KEY, collection of numbers is parameter>
-    phoneMap.insert(pair<string, Phones>("Google Inc", *(new Phones())));
-    phoneMap["Google Inc"].contactInfo.emplace_back("+1 800 800-0001");
-    phoneMap["Google Inc"].contactInfo.emplace_back("+1 800 800-0011");
-    phoneMap["Google Inc"].contactInfo.emplace_back("+1 800 800-0111");
+    map<string, Phones> namesMap;    // map < names is KEY, collection of numbers is parameter>
+    map<string, string> phoneMap;   // indexing for phones number
+    insertIntoMaps(namesMap, phoneMap, "Google Inc", "+1 800 800-0001");
+    insertIntoMaps(namesMap, phoneMap, "Google Inc", "+1 800 800-0011");
+    insertIntoMaps(namesMap, phoneMap, "Google Inc", "+1 800 800-0111");
 
     displayHelp();
     while (true) {
@@ -32,28 +34,36 @@ int main() {
         if (comm == "quit") break;
         if (comm == "add") {
             // add record to map
-            addRecord(phoneMap);
+            addRecord(namesMap, phoneMap);
         } else if (comm == "del") {
             // delete record from map
-            deleteRecord(phoneMap);
+            deleteRecord(namesMap, phoneMap);
         } else if (comm == "phone") {
             // look for map record by phone number (not key)
-            findByPhone(phoneMap);
+            findByPhone(namesMap, phoneMap);
         } else if (comm == "name") {
             // display map record by name (key)
-            findByName(phoneMap);
+            findByName(namesMap);
         } else if (comm == "list") {
             // print list on map records
-            if (phoneMap.empty()) {
-                cout << "Список пуст\n";
+            if (namesMap.empty()) {
+                cout << "Список абонентов пуст\n";
             } else {
-                for (auto it = phoneMap.begin(); it != phoneMap.end(); it++)
+                for (auto it = namesMap.begin(); it != namesMap.end(); it++)
                     displayContact(it);
                 cout << endl;
             }
         } else if (comm == "help" || comm == "?") {
             // display scroll of controls
             displayHelp();
+        } else if (comm == "see") {
+            if (phoneMap.empty()) {
+                cout << "Индексная карта пустая\n";
+            } else {
+                for (auto & it : phoneMap)
+                    cout << it.first << " :: " << it.second << endl;
+                cout << endl;
+            }
         }
     }
 
@@ -65,7 +75,7 @@ void displayHelp() {
     cout << endl;
     cout << "Список команд:\n";
     cout << "add\t- добавить абонента\n";
-    cout << "del\t- удалить абонента\n";
+    cout << "del\t- удалить данные абонента\n";
     cout << "list\t- вывод списка абонентов\n";
     cout << "phone\t- поиск по номеру телефона\n";
     cout << "name\t- поиск по имени абонента\n";
@@ -89,10 +99,24 @@ bool phoneNumberIsCorrect(string& s) {
     }
     return true;
 }
+void insertIntoMaps(map<string, Phones> &namesMap,
+                    map<string, string> &phoneMap,
+                    const string &name, const string &phone) {
+    if (name.empty() || phone.empty()) return;
 
-void addRecord(map<string, Phones> &map) {
+    auto it = namesMap.find(name);
+    if (it == namesMap.end()) {
+        // новый контакт - заводим запись
+        namesMap.insert(pair<string, Phones>(name, *(new Phones())));
+    }
+    // добавляем данные по контакту
+    namesMap[name].contactInfo.emplace_back(phone);
+    phoneMap.insert(pair<string, string>(phone, name));
+}
 
+void addRecord(map<string, Phones> &namesMap, map<string, string> &phoneMap) {
     string phone, name;
+
     cout << "Введите имя абонента: ";
     getline(cin, name);
     if (name.empty()) return;
@@ -103,59 +127,83 @@ void addRecord(map<string, Phones> &map) {
     if (!phoneNumberIsCorrect(phone)) {
         // TODO: например вывести сообщение
     }
-    auto it = map.find(name);
-    if (it == map.end()) {
-        // новый контакт - заводим запись
-        map.insert(pair<string, Phones>(name, *(new Phones())));
-    }
-    // добавляем данные по контакту
-    map[name].contactInfo.emplace_back(phone);
+
+    insertIntoMaps(namesMap, phoneMap, name, phone);
 }
 
-void deleteRecord(map<string, Phones> &map) {
+void deleteRecord(map<string, Phones> &namesMap, map<string, string> &phoneMap) {
+
+    string phone;
+    cout << "Введите номер телефона (Enter - дальше): ";
+    getline(cin, phone);
+    if (!phone.empty()) {
+        auto phoneIter = phoneMap.find(phone);
+        if (phoneIter == phoneMap.end()) {
+            cout << "Совпадений не найдено\n";
+        } else {
+            auto namesIter = namesMap.find(phoneIter->second);
+            auto it = namesIter->second.contactInfo.begin();
+            for (; it < namesIter->second.contactInfo.end(); it++) {
+                if (*it == phone) {
+                    namesIter->second.contactInfo.erase(it);
+                    cout << "Количество удаленных записей: " << phoneMap.erase(phone) << endl;
+                }
+            }
+        }
+        return;
+    }
 
     string name;
     cout << "Введите имя абонента: ";
     getline(cin, name);
     if (name.empty()) return;
 
-    cout << "Количество удаленных записей: " << map.erase(name) << endl;
+    auto namesIter = namesMap.find(name);
+    if (namesIter != namesMap.end()) {
+        for (auto & i : namesIter->second.contactInfo)
+            phoneMap.erase(i);
+    }
+    cout << "Количество удаленных записей: " << namesMap.erase(name) << endl;
 }
 
 void displayContact(map<string, Phones>::iterator it) {
 
-    printf("\nАбонент:  %-20s :: %s\n", it->first.c_str(), it->second.contactInfo.at(0).c_str());
-    for (int i = 1; i < it->second.contactInfo.size(); i++) {
-        printf("%-30s :: %s\n", " ", it->second.contactInfo.at(i).c_str());
+    if (it->second.contactInfo.empty()) {
+        printf("\nАбонент:  %-20s :: %s\n", it->first.c_str(), "данных нет");
+    } else {
+        printf("\nАбонент:  %-20s :: %s\n", it->first.c_str(), it->second.contactInfo.at(0).c_str());
+        for (int i = 1; i < it->second.contactInfo.size(); i++) {
+            printf("%-30s :: %s\n", " ", it->second.contactInfo.at(i).c_str());
+        }
     }
 }
 
-void findByPhone(map<string, Phones> &map) {
+void findByPhone(map<string, Phones> &namesMap, map<string, string> &phoneMap) {
 
     string phone;
     cout << "Введите номер телефона: ";
     getline(cin,phone);
     if (phone.empty()) return;
 
-    for (auto it = map.begin(); it != map.end(); it++)
-        for (int i = 0; i < it->second.contactInfo.size(); i++) {
-            if (it->second.contactInfo.at(i) == phone) {
-                displayContact(it);
-                return;
-            }
-        }
-    cout << "Совпадений не найдено\n";
+    auto phoneIter = phoneMap.find(phone);
+    if (phoneIter == phoneMap.end()) {
+        cout << "Совпадений не найдено\n";
+    } else {
+        auto namesIter = namesMap.find(phoneIter->second);
+        if (namesIter != namesMap.end())
+            displayContact(namesIter);
+    }
 }
 
-void findByName(map<string, Phones> &map) {
+void findByName(map<string, Phones> &namesMap) {
 
     string name;
     cout << "Введите имя абонента: ";
     getline(cin,name);
     if (name.empty()) return;
 
-    auto it = map.find(name);
-    if (it == map.end()) {
+    auto it = namesMap.find(name);
+    if (it == namesMap.end()) {
         cout << "Совпадений не найдено\n";
     } else {
         displayContact(it);
