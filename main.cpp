@@ -2,7 +2,7 @@
 #include <string>
 #include <map>
 #include <vector>
-//#include "windows.h"
+#include "windows.h"
 using namespace std;
 
 struct Phones {
@@ -21,8 +21,8 @@ void findByPhone(map<string, Phones> &namesMap, map<string, string> &phoneMap);
 void findByName(map<string, Phones> &namesMap);
 
 int main() {
-//    SetConsoleCP(1251);
-//    SetConsoleOutputCP(1251);
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
     setlocale(LC_ALL, "RUS");
 
     map<string, Phones> namesMap;   // map < names is KEY, collection of numbers is parameter>
@@ -50,9 +50,10 @@ int main() {
         } else if (comm == "list") {
             // print list on map records
             if (namesMap.empty()) {
-                cout << "РЎРїРёСЃРѕРє Р°Р±РѕРЅРµРЅС‚РѕРІ РїСѓСЃС‚\n";
+                cout << "Список абонентов пуст\n";
             } else {
-                for (auto it = namesMap.begin(); it != namesMap.end(); it++)
+                auto it = namesMap.begin();
+                for (; it != namesMap.end(); it++)
                     displayContact(it);
                 cout << endl;
             }
@@ -61,7 +62,7 @@ int main() {
             displayHelp();
         } else if (comm == "see") {
             if (phoneMap.empty()) {
-                cout << "РРЅРґРµРєСЃРЅР°СЏ РєР°СЂС‚Р° РїСѓСЃС‚Р°СЏ\n";
+                cout << "Индексная карта пустая\n";
             } else {
                 for (auto & it : phoneMap)
                     cout << it.first << " :: " << it.second << endl;
@@ -76,17 +77,17 @@ int main() {
 
 void displayHelp() {
     cout << endl;
-    cout << "РЎРїРёСЃРѕРє РєРѕРјР°РЅРґ:\n";
-    cout << "add\t- РґРѕР±Р°РІРёС‚СЊ Р°Р±РѕРЅРµРЅС‚Р°\n";
-    cout << "del\t- СѓРґР°Р»РёС‚СЊ РґР°РЅРЅС‹Рµ Р°Р±РѕРЅРµРЅС‚Р°\n";
-    cout << "list\t- РІС‹РІРѕРґ СЃРїРёСЃРєР° Р°Р±РѕРЅРµРЅС‚РѕРІ\n";
-    cout << "phone\t- РїРѕРёСЃРє РїРѕ РЅРѕРјРµСЂСѓ С‚РµР»РµС„РѕРЅР°\n";
-    cout << "name\t- РїРѕРёСЃРє РїРѕ РёРјРµРЅРё Р°Р±РѕРЅРµРЅС‚Р°\n";
-    cout << "quit\t- РІС‹С…РѕРґ\n";
+    cout << "Список команд:\n";
+    cout << "add\t- добавить абонента\n";
+    cout << "del\t- удалить данные абонента\n";
+    cout << "list\t- вывод списка абонентов\n";
+    cout << "phone\t- поиск по номеру телефона\n";
+    cout << "name\t- поиск по имени абонента\n";
+    cout << "quit\t- выход\n";
 }
 
 string getCommand() {
-    cout << "\nР’РІРµРґРёС‚Рµ РєРѕРјР°РЅРґСѓ: ";
+    cout << "\nВведите команду: ";
     string command;
     getline(cin,command);
     for (char & i : command) {
@@ -109,10 +110,10 @@ void insertIntoMaps(map<string, Phones> &namesMap,
 
     auto it = namesMap.find(name);
     if (it == namesMap.end()) {
-        // РЅРѕРІС‹Р№ РєРѕРЅС‚Р°РєС‚ - Р·Р°РІРѕРґРёРј Р·Р°РїРёСЃСЊ
+        // новый контакт - заводим запись
         namesMap.insert(pair<string, Phones>(name, *(new Phones())));
     }
-    // РґРѕР±Р°РІР»СЏРµРј РґР°РЅРЅС‹Рµ РїРѕ РєРѕРЅС‚Р°РєС‚Сѓ
+    // добавляем данные по контакту
     namesMap[name].contactInfo.emplace_back(phone);
     phoneMap.insert(pair<string, string>(phone, name));
 }
@@ -120,15 +121,15 @@ void insertIntoMaps(map<string, Phones> &namesMap,
 void addRecord(map<string, Phones> &namesMap, map<string, string> &phoneMap) {
     string phone, name;
 
-    cout << "Р’РІРµРґРёС‚Рµ РёРјСЏ Р°Р±РѕРЅРµРЅС‚Р°: ";
+    cout << "Введите имя абонента: ";
     getline(cin, name);
     if (name.empty()) return;
 
-    cout << "Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°: ";
+    cout << "Введите номер телефона: ";
     getline(cin, phone);
     if (phone.empty()) return;
     if (!phoneNumberIsCorrect(phone)) {
-        // TODO: РЅР°РїСЂРёРјРµСЂ РІС‹РІРµСЃС‚Рё СЃРѕРѕР±С‰РµРЅРёРµ
+        // TODO: например вывести сообщение
     }
 
     insertIntoMaps(namesMap, phoneMap, name, phone);
@@ -137,19 +138,19 @@ void addRecord(map<string, Phones> &namesMap, map<string, string> &phoneMap) {
 void deleteRecord(map<string, Phones> &namesMap, map<string, string> &phoneMap) {
 
     string phone;
-    cout << "Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР° (Enter - РґР°Р»СЊС€Рµ): ";
+    cout << "Введите номер телефона (Enter - дальше): ";
     getline(cin, phone);
     if (!phone.empty()) {
         auto phoneIter = phoneMap.find(phone);
         if (phoneIter == phoneMap.end()) {
-            cout << "РЎРѕРІРїР°РґРµРЅРёР№ РЅРµ РЅР°Р№РґРµРЅРѕ\n";
+            cout << "Совпадений не найдено\n";
         } else {
             auto namesIter = namesMap.find(phoneIter->second);
             auto it = namesIter->second.contactInfo.begin();
             for (; it < namesIter->second.contactInfo.end(); it++) {
                 if (*it == phone) {
                     namesIter->second.contactInfo.erase(it);
-                    cout << "РљРѕР»РёС‡РµСЃС‚РІРѕ СѓРґР°Р»РµРЅРЅС‹С… Р·Р°РїРёСЃРµР№: " << phoneMap.erase(phone) << endl;
+                    cout << "Количество удаленных записей: " << phoneMap.erase(phone) << endl;
                 }
             }
         }
@@ -157,7 +158,7 @@ void deleteRecord(map<string, Phones> &namesMap, map<string, string> &phoneMap) 
     }
 
     string name;
-    cout << "Р’РІРµРґРёС‚Рµ РёРјСЏ Р°Р±РѕРЅРµРЅС‚Р°: ";
+    cout << "Введите имя абонента: ";
     getline(cin, name);
     if (name.empty()) return;
 
@@ -166,15 +167,15 @@ void deleteRecord(map<string, Phones> &namesMap, map<string, string> &phoneMap) 
         for (auto & i : namesIter->second.contactInfo)
             phoneMap.erase(i);
     }
-    cout << "РљРѕР»РёС‡РµСЃС‚РІРѕ СѓРґР°Р»РµРЅРЅС‹С… Р·Р°РїРёСЃРµР№: " << namesMap.erase(name) << endl;
+    cout << "Количество удаленных записей: " << namesMap.erase(name) << endl;
 }
 
 void displayContact(map<string, Phones>::iterator it) {
 
     if (it->second.contactInfo.empty()) {
-        printf("\nРђР±РѕРЅРµРЅС‚:  %-20s :: %s\n", it->first.c_str(), "РґР°РЅРЅС‹С… РЅРµС‚");
+        printf("\nАбонент:  %-20s :: %s\n", it->first.c_str(), "данных нет");
     } else {
-        printf("\nРђР±РѕРЅРµРЅС‚:  %-20s :: %s\n", it->first.c_str(), it->second.contactInfo.at(0).c_str());
+        printf("\nАбонент:  %-20s :: %s\n", it->first.c_str(), it->second.contactInfo.at(0).c_str());
         for (int i = 1; i < it->second.contactInfo.size(); i++) {
             printf("%-30s :: %s\n", " ", it->second.contactInfo.at(i).c_str());
         }
@@ -184,15 +185,15 @@ void displayContact(map<string, Phones>::iterator it) {
 void findByPhone(map<string, Phones> &namesMap, map<string, string> &phoneMap) {
 
     string phone;
-    cout << "Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°: ";
+    cout << "Введите номер телефона: ";
     getline(cin,phone);
     if (phone.empty()) return;
 
     auto phoneIter = phoneMap.find(phone);
     if (phoneIter == phoneMap.end()) {
-        cout << "РЎРѕРІРїР°РґРµРЅРёР№ РЅРµ РЅР°Р№РґРµРЅРѕ\n";
+        cout << "Совпадений не найдено\n";
     } else {
-        auto namesIter = namesMap.find(phoneIter->second);
+        auto namesIter= namesMap.find(phoneIter->second);
         if (namesIter != namesMap.end())
             displayContact(namesIter);
     }
@@ -201,13 +202,13 @@ void findByPhone(map<string, Phones> &namesMap, map<string, string> &phoneMap) {
 void findByName(map<string, Phones> &namesMap) {
 
     string name;
-    cout << "Р’РІРµРґРёС‚Рµ РёРјСЏ Р°Р±РѕРЅРµРЅС‚Р°: ";
+    cout << "Введите имя абонента: ";
     getline(cin,name);
     if (name.empty()) return;
 
     auto it = namesMap.find(name);
     if (it == namesMap.end()) {
-        cout << "РЎРѕРІРїР°РґРµРЅРёР№ РЅРµ РЅР°Р№РґРµРЅРѕ\n";
+        cout << "Совпадений не найдено\n";
     } else {
         displayContact(it);
     }
